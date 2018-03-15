@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<!--Vew this page here: http://htmlpreview.github.com/?https://github.com/SquareGearsLogic/StarveIoClock/blob/master/StarveIoDuskDawnClock.html -->
+<html>
+<head><script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<style>
+table.T		{border:0px;}
+table.T td 	{width:65px;text-align:left;vertical-align:top;}
+table.T th 	{background-color:#AACCCC;}
+</style>
+</head>
+<body>
+<a href="http://starve.io">Starve.io</a> dusk dawn clock<br>If time is wrong - use button at the bottom to generate new seed.
+<p class="Clock">Select your server and preferences:<br></p>
+<input type="checkbox" class="isBeepDusk" value="Texas1" checked='true'/>Beep me on dusk!
+<br><input type="checkbox" class="isBeepMidnight" value="Texas1" checked/>Beep me on midnight!
+<br><input type="checkbox" class="isBeepNoon" value="Texas1" checked/>Beep me on noon!
+<br><input type="checkbox" class="isBeepDawn" value="Texas1" checked/>Beep me on dawn!
+<br><input type="checkbox" class="isBeepBeforeDawn" value="Texas1" />Beep me <input class="beepBeforeDuskDawn" size="3" value="20"> seconds before dawn! (use for quests, you'll get extra fireplace)
+<form id="myForm">
+<table class="T">
+<tr><th>Roubaix</th><th>Montreal1</th><th>LoasAngeles</th></tr>
+<tr><td>
+<input type="radio" name="radioName" value="Roubaix1" />#1<br/>
+<input type="radio" name="radioName" value="Roubaix1" />#2<br/>
+<input type="radio" name="radioName" value="Roubaix1" />#3<br/>
+<input type="radio" name="radioName" value="Roubaix1" />#4<br/>
+<input type="radio" name="radioName" value="Roubaix1" />#5<br/>
+<input type="radio" name="radioName" value="Roubaix1" />#6<br/>
+<input type="radio" name="radioName" value="Roubaix1" />#7<br/>
+</td><td>
+<input type="radio" name="radioName" value="Montreal1" />#1<br/>
+<input type="radio" name="radioName" value="Montreal2" />#2<br/>
+<input type="radio" name="radioName" value="Montreal3" />#3<br/>
+<input type="radio" name="radioName" value="Montreal4" />#4<br/>
+</td><td>
+<input type="radio" name="radioName" value="LoasAngeles1" />#1<br/>
+<input type="radio" name="radioName" value="LoasAngeles2" />#2<br/>
+<input type="radio" name="radioName" value="LoasAngeles3" />#3<br/>
+</td></tr>
+<tr><th>Seattle</th><th>Texas</th><th>Leningrad</th></tr>
+<tr><td>
+<input type="radio" name="radioName" value="Seattle1" />#1<br/>
+<input type="radio" name="radioName" value="Seattle2" />#2<br/>
+</td><td>
+<input type="radio" name="radioName" value="Texas1" />#1<br/>
+<input type="radio" name="radioName" value="Texas2" />#2<br/>
+</td><td>
+<input type="radio" name="radioName" value="Leningrad1" />#1<br/>
+<input type="radio" name="radioName" value="Leningrad2" />#2<br/>
+<input type="radio" name="radioName" value="Leningrad3" />#3<br/>
+<input type="radio" name="radioName" value="Leningrad4" />#4<br/>
+<input type="radio" name="radioName" value="Leningrad5" />#5<br/>
+<input type="radio" name="radioName" value="Leningrad6" />#6<br/>
+<input type="radio" name="radioName" value="Leningrad7" />#7<br/>
+</td></tr>
+<tr><th>Singapore</th><th>Tokyo</th><th>Sydney</th></tr>
+<tr><td>
+<input type="radio" name="radioName" value="Singapore1" />#1<br/>
+<input type="radio" name="radioName" value="Singapore2" />#2<br/>
+</td><td>
+<input type="radio" name="radioName" value="Tokyo3" />#3<br/>
+<input type="radio" name="radioName" value="Tokyo4" />#4<br/>
+</td><td>
+<input type="radio" name="radioName" value="Sydney1" />#1<br/>
+<input type="radio" name="radioName" value="Sydney2" />#2<br/>
+</td></tr>
+</table>
+</form>
+<input type="button" class='timeOffsetButton' value="click me on Dawn to get server offset"/>
+<p class="Offset"></p>
+</body>
+<script>
+var serverOffsetMap = {
+	Roubaix1: 1521102080494,
+    Roubaix2: 1521102080494,
+    Roubaix3: 1521102396702,
+    Roubaix4: 1521102053618,
+    Roubaix5: 1521102456802,
+    Roubaix6: 1521102445188,
+    Roubaix7: 1521139873712,
+    Montreal1: 1521102314636,
+    Montreal2: 1521102314636,
+    Montreal3: 1521102314636,
+    Montreal4: 1521102314636,
+    LoasAngeles1: 1521139721708,
+    LoasAngeles2: 1521101940234,
+    LoasAngeles3: 1521102543528,
+    Seattle1: 1521102532204,
+    Seattle2: 1521140017232,
+    Texas1: 1521066707866,
+    Texas2: 1521101740694,
+    SPB1: 1521140066010,
+    SPB2: 1521141088264,
+    SPB3: 1521140608756,
+    SPB4: 1521140200410,
+    SPB5: 1521141088264,
+    SPB6: 1521141088264,
+    Singapore1: 1521141022284,
+    Singapore2: 1521141022284,
+    Tokyo3: 1521141186652,
+    Tokyo4: 1521141186652,
+    Sydney1: 1521141270606,
+    Sydney2: 1521141615042
+};
+var clockId = 0;
+var halfDayMs = 240000; // 4 min
+var halfDaySecs = halfDayMs / 1000
+
+$(document).ready(function(){
+	$('#myForm input').on('change', function() {
+		var server = $('input[name=radioName]:checked', '#myForm').val()
+		starveioClock(server, serverOffsetMap[server]);
+        checkBeep(0, true, false);
+	});
+	$(".timeOffsetButton").on('click', function() {
+    	var offset = Date.now();
+  		$("p.Offset").html('Add \"YourServerName: ' + offset+',\" into serverOffsetMap (around line 37).');
+        checkBeep(0, true, false);
+	});
+    jQuery('input.beepBeforeDuskDawn').keyup(function () { 
+    	this.value = this.value.replace(/[^0-9\.]/g,'');
+	});
+});
+function starveioClock(server, offset){
+	clearInterval(clockId);
+	clockId = setInterval(function() {
+    	var difMs = Date.now()-offset;
+    	var fourMinDif =Math.floor(difMs / halfDayMs);
+        var halfDayMsNow = difMs - fourMinDif*halfDayMs;
+        var leftMs = halfDayMs - halfDayMsNow;
+        var leftMin = Math.floor(leftMs/1000);
+        var duskDawn = "Dusk";
+        if (isEven(fourMinDif)){
+        	$("p.Clock").css("background-color","#eec414");
+            $("p.Clock").css("color","#00313c");
+        }else{    
+            $("p.Clock").css("background-color","#00313c");
+            $("p.Clock").css("color","#eec414");
+            duskDawn = "Dawn"
+        }
+        $("p.Clock").html(server+' seconds till '+duskDawn + ": "+leftMin);
+        checkBeep(leftMin, false, isOdd(fourMinDif));
+	}, 1000);
+};
+function checkBeep(leftMin, isMenuSound, isNight) {
+	// https://dopiaza.org/tools/datauri/index.php
+    var daySound = new Audio("data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU=");
+	var eventSound = new Audio("data:audio/mpeg;base64,SUQzAwAAAAADU1RYWFgAAAAcAAAARW5jb2RlZCBieQBpVHVuZXMgdjcuNS4wLjIwVEFMQgAAABMAAABVRk86IEVuZW15IFVua25vd25USVQyAAAABAAAADAwMlRYWFgAAAASAAAAUGFydCBvZiBhIHNldAAxLzNUWFhYAAAAIwAAAENvbnRlbnQgZ3JvdXAgZGVzY3JpcHRpb24AR2Vvc2NhcGVDT01NAAAAeQAAAAAAAAAgMDAwMDAwMDAgMDAwMDAyMTAgMDAwMDA0RjYgMDAwMDAwMDAwMDAwMjgzQSAwMDAwMDAwMCAwMDAwMUZENyAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMENPTU0AAAB5AAAAWFhYACAwMDAwMDAwMCAwMDAwMDIxMCAwMDAwMDRGNiAwMDAwMDAwMDAwMDAyODNBIDAwMDAwMDAwIDAwMDAxRkQ3IDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwVFBFMQAAAAsAAABNaWNyb3Byb3NlVFlFUgAAAAUAAAAxOTk0VERSQwAAAAUAAAAxOTk0/+NAxAAAAAAAAAAAAFhpbmcAAAAPAAAAEwAADqMAFhYWFhYwMDAwMDw8PDw8S0tLS0tLVlZWVlZlZWVlZXBwcHBwfHx8fHx8i4uLi4uWlpaWlqGhoaGhra2tra2tuLi4uLjDw8PDw9LS0tLS3t7e3t7e6enp6en8/Pz8/P//////AAAAUExBTUUzLjk5cgQ3AAAAAAAAAAA1CCQDxSEAAeAAAA6jez9DeQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/jYMQAFlgymP9GAAAH/7fbtfoj2TAYDTYmTJg+D4fBAEAQBAEwfB8HwfBAEAQBAzD8TggCEQAMHwfD4f1AgAwfE5/1AmD4Pn/EAJg+fwQBA5//8EAQ+GP/EAY/DGXfDHBAEATD/coBACAQNnXaXtZLFUGAUZDplITEoNAxlHAGPCAzssjTJBNrzQ1HQjHRpMXMwy2EzEoVPxNADEAkPaVBmTGMEMAI0uCttO4tmvhKt9Wmr+LQLANMpwEU8BEQxZTZgaejW31iCp1pMyLjP6yJxZ9rkBvtcU4VscBLptFhXJi7X4CaTLG3f9VSG2xSxluMSmo3DrxRnOq+kvfqIUEM0UFQ1EodtT96TxeT3ocfOllNqYhl2YRD0bmJXCbcQuyLCtKasmpJHnHqs7FrkZtxSkfWUyOOyLX/43DE0lBMFopfnMkgF70UtReO9sxanyl26S1NROpetxmlp4nR29yW1I7sBxKdkcGSqUy23Q4VaX7kvlVrCUU07djtrG5E7923ZleohPWcp7c1q3S2LGEfux/U/Xr3Z3c1OV5bjqtZpI/I5HAlPfpIhKpZnu5D1Schm/Wv1YAC59/tbrJMQ/gySX8dpZ6NzFhUA1bDnCKHlNk9xEUGRWqWVNo9z6v/akwERm0MQGsaChBQJJ8EvnJGkDBwOmhLpnHWqpPwg5zoHvGHJXOkC+Ti2zzKnGbhXhpr/1jZ+2xNtH8Njzm3EYypfKeDkNMl2dkLk6sUdXeYTxHLfveY31srlbvhNmfu/nZ3X7zvzJ3dx4/jv38z2qfc/Pc5+Vjmmv94lLjpgAWl/f/bbLl/CkuWOgQcINdqIjIx1DhwVt9C1CFEQYYvN777MzFlPdlb6S5nlgEMFHsDWu0hPiA12rGaTARGD4GzDArL5Zskwf/jMMTwKbPCnb/ZMAGQNqWs2b9ICR+TuGRC7SnjF8p23jaurbsIyumaZX/PLepoVUoxlHHOOEcZsmRNzzPtzNce5WkXotN5vub3e6k2cklo8ddn19aQGwooCQGp5R4tQD9XiW3Lv7/In/d+DTuzKpAAFN//9trnygo9VqFmSfMVlLAV7QRi7UPRd9HrZY63ImqgaXPnqTK3MuoJ8P/jQMTYKorGoT7KRzUUMqhZE1EUhlDBysKeeyhCGWZ2zGklWX3deCwJLrOzxhNbWbxFsdrLYv9lu4ixp8cS3JZ8yOb/TUsurKFg+5Eblrv2tQbCih56CzJ1ogmZTu3HMNSrNwlCgipAssgUtRPLHnyKbmwEZiDLzf7d92n8cTQjlnLViAAAC2//2tuNmYt0kMwHGaSnhsQrIqkQMEEgqVp7+qD06mdt0xBgqDkSQ2BoObEmMXamUQhszIcWJ3TQhuK4UPqqLiJWWG9XWI20jQ7/4zDE8CibPqW+wkcZUwnrD/Nnat6WNV9nm4pSzcGnD16cYgkKjaOIh9D1PeKSM5+5sPMQaekPynDb3Coh2/1ip8fdLHLMGbP72ypQLWPiu822sW9tGDsiCDxLOrn8n9yqQAM3329tn/MUkoh5nqEoIEc6CxUwJ6Hraxd422ANc/rx9i8jgQcEIQoX2ETed3ERAqo8SaMYY0B0V0H/40DE3Cgq9qZewkb50FhoeigxzHPZhlTFtcqe0uqGsqnqY77j7uTjb4makdKItPEO0RoXUXDKaOJSHirOSpDh0dUbRGc9eHVTe9zJsq/ENHzz9eWQ9O/SiTnqREKMgSCSvOEtOtmcH/7tYRZ3uOuAGjrAAAK776RybsNiaWzSG2ipUlxXGhsANA7BEmaEBZiwEzL8sdctR6TvUMgmoHakVAywpQau0rzluJalcawzLbEOerEk+Jl5NNKxM4FsXUONsqkdnnrtrNzireJLFoYi/+MwxP4n806hHsoHHYKVg6BECSiNRJQQRCUKdyRFnvDHhRC5Ytzk4xRemf9hRYfnbv69O8uSERGTzlYEZYLKvwsq0QuQ5pntqHSbK2VO5p7vVY3VgAAAD++/t1uO5uV9rdSOZnSzCDAGU29yqkxcfyxdiEs2KlV1hyASNypg329zhcQBjUflOFm5yMQtuYkVZR3N6en9WQRfJDfj/+MwxO0pC66ZvspG+QnUo09bKWWX6SB+zwlkgexGW/Pquqdtikpn2vnFpUzuMbSvKCz6xmeZVo+SNn8siG5MgMyaZFseZVQw7dOf25tpSmM+df5h8PP4771p8r6YmA/bgAAAN+/2tslSjmfrX5h23u4+zFiLCr84BABUsKRyp9/Z2bUTXLOYmUUT7x7mEbKoy0RSyGs9NrTgqUjC/+NAxNcmw4aiXsJG/ShqUdaKLNPpOSHZNGWp002wcQha74vHNyAEuihLjbMRmRYwgWIbYNXNihMvVeJUx4ZlHu0bqtXCZThLc0V81ciJhsq0e4FVaD1ICx22kWUPItbOgdTI9ONbP+N/86j2oswAAJNvdpJZaygOGK1uSR5yqKPsvX8t6uooh+teZiUofW1MqYDyrObcGTurSSs8imbmxEyFkZmljePI0BJ25xS5LrRZdc0Q9C9DJjU9khi1ds1OkM2k1GdVZWvsyn9WiNznsv/jMMT/Juranl7CRvWaSsZxjcomz8+E0MyhMpymctui9q2S3y3TuaU6q0/IovzHK8kJqRu5ZHpX4mRm0S7OwO7nwUwW6mWdLZ+8z8K1aoyAADb9rJLJWLqkjM1GHA22jBBoqKrSL5XNbhJC3AC0FJF3BT89shemkTT4AvfIF/TgnYPs1kBxWJesuCRBbIlUiFdM8mRwo2xAzNZhjf/jMMTyKNOiml7CRxkYf0T0qFE0uXpkqkbNsDz9WrNnI35xd84RTKlmWHwjZiwqmcp3DwtI1ZSiGvk5foZya2mae+Qjz7T2wRoZu93nYhGV5WKoeQUqhgAAAO31kkkbkp6wXiOtEZbcgpD2SqtDOOu0FwT26G879rNbHFppg2QrNSWWlK5pFQdijYQMkyh7sTSjMvhteKuxT1Pafv/jMMTdJaQWml55hxBCLVRvOY2VxnH9mGbWYKaRTHdEJS8joleQlUicrcFd6V9aTa4aSvFPiXSlKIcnN7nGTzr4NA5U5atq/lcmId14szrdls9kmlsGDPTflju3jIVSESFv99rbY4uOe9fY/D3kx2TTWTsECRZ+sfYOYMN00CuOTQEhkNd+TPLTY1ZENJ/SQNuGDR3k1LPZtYlLkP/jMMTVJYNSlv56RvnAf2+SWQ2O7VKUFalN49NCIhDqbNCiDsanTN0jE6cQ22fxksIj6Y9yBn2udOdRxSE3up37Sm7jnEZKNbPhk/UmMhN9Lie1LPzzyv3+7cMVaPy8tdayGZ7fbJZJlitIzyQy8RMvhvE2ccsqEqGd+9XOoZAznxCQwgdqKj6BGXOZy2Y9BBG5c59iByjQxEnKh//jMMTOJFvunv5hhvlzNbEDHvbumWFbjUbtRZyzmLSvBJKQJ8/o8EOvHNLQFWkzhqQwnBpIj7ZjwSVBQzJwRjKxkpuVyWQvQp52q1iUoPl6/Bo4PsuV0ojO/8rQBJfec7jfbZJMj/UACVI5W6rhHcrpTsnXePpuQDSthyC9C119AjZBqKl3nIkrduaNKCifEMjRGg5J1mZyxYQegv/jQMTLJUMWkl55hvnDygcmRdKAajiYFQtA1I5IipI1CsQObBmDnaNcyJidEBJSZnJIpowEdyu84zXsoNCdlDGQWlmxMzdifmsh8fpcM1z3bXz1UyO+t2Y/y2mQI0JwpN3Mox7R/jSw1cox1fy9YOrStpByySN2SIEJ5mzp0Uj0kIYAZEswG1XEuO/FAXnJQLR4oNKoWUwGxxp4uppdFHCokFlEEJJl4NmQ6l0Gm27ONLhJytoFBw9jT1Q4wZ2S+oj1c/ER7aslUtaNTUkfr2n/4zDE+SYcFoJcYYcQUU8pcEnkjxQ8oddjTD7h0e6eP75mZSR1Xd/GnPEu1Xauu91cTNtTU/ctpMPJ/3LvD1ysXOZzJBVR0J0BpWq4IgEEgkRCQNBkcYQAFI2vXZZD/gAcDbspXj/okgWJQViP+DvDqDbh0X5rf/mlzRhIjGnRkC5qv//lkRpCDAKYUWwhq41pr3//+kKkgjdD0tP/4zDE7ydTxopfSUABKGIw7KZU70E////mkiDkELGlw4BBh9ZyNVbMSmv////YoouzFCx/0RYurWsNDUPVeZSqHrVX/////9M1I9ENK1+FSQK+DbM4X+nDhEat6VVo1TVcOxL///////9dyyWUPGluqm6ijLJYahx73hZnCKaVfuU6yy/eP/vX/////////7Rodhxp7SXdlK+3JjX/41DE4D4DpkpdmcABMy9y2vXI5GK7jwBlKv3S1qbLdWlyS38FTEFNRTMuOTlMQU1FMy45OS41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr/4xDE2AAAA0gBwAAAqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
+    var menuSound = new Audio("data:audio/mpeg;base64,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");
+    
+    if (isMenuSound==true){
+    	menuSound.play();
+        return;
+    }
+    //isBeepDusk isBeepMidnight isBeepNoon isBeepDawn isBeepBeforeDawn
+    if($("input.isBeepDusk").is(':checked') && leftMin==0 && isNight==false){
+    	daySound.play();
+        $("p.Offset").html("it's Night!");
+    }
+    if($("input.isBeepMidnight").is(':checked') && leftMin==Math.floor(halfDaySecs/2) && isNight==true){
+    	daySound.play();
+        $("p.Offset").html("it's Midnight!");
+    }
+    if($("input.isBeepNoon").is(':checked') && leftMin==Math.floor(halfDaySecs/2) && isNight==false){
+    	daySound.play();
+        $("p.Offset").html("it's Noon!");
+    }
+    if($("input.isBeepDawn").is(':checked') && leftMin==0 && isNight==true){
+    	daySound.play();
+    	$("p.Offset").html("it's Morning!");
+    }
+    var beforeSec = parseInt($("input.beepBeforeDuskDawn").val());
+    if($("input.isBeepBeforeDawn").is(':checked') && leftMin==beforeSec && isNight==true)    
+    	eventSound.play();
+
+}
+function isEven(n) {
+   return n % 2 == 0;
+}
+
+function isOdd(n) {
+   return Math.abs(n % 2) == 1;
+}
+</script>
+</html>
