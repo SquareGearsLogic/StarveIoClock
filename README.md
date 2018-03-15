@@ -1,6 +1,6 @@
 Starve.IO Dusk Dawn Clock
 ===========
-[Online](http://htmlpreview.github.com/?https://github.com/SquareGearsLogic/StarveIoClock/blob/master/StarveIoDuskDawnClock.html)
+[Online](https://cdn.rawgit.com/SquareGearsLogic/StarveIoClock/master/StarveIoDuskDawnClock.html)
 
 If it shows wrong time
 ===========

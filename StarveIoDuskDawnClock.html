@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!--Vew this page here: http://htmlpreview.github.com/?https://github.com/SquareGearsLogic/StarveIoClock/blob/master/StarveIoDuskDawnClock.html -->
+<!--Vew this page here: https://cdn.rawgit.com/SquareGearsLogic/StarveIoClock/master/StarveIoDuskDawnClock.html -->
 <html>
 <head><script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <style>
@@ -89,12 +89,12 @@ var serverOffsetMap = {
     Seattle2: 1521140017232,
     Texas1: 1521066707866,
     Texas2: 1521101740694,
-    SPB1: 1521140066010,
-    SPB2: 1521141088264,
-    SPB3: 1521140608756,
-    SPB4: 1521140200410,
-    SPB5: 1521141088264,
-    SPB6: 1521141088264,
+    Leningrad1: 1521140066010,
+    Leningrad2: 1521141088264,
+    Leningrad3: 1521140608756,
+    Leningrad4: 1521140200410,
+    Leningrad5: 1521141088264,
+    Leningrad6: 1521141088264,
     Singapore1: 1521141022284,
     Singapore2: 1521141022284,
     Tokyo3: 1521141186652,
@@ -152,7 +152,7 @@ function checkBeep(leftMin, isMenuSound, isNight) {
     	menuSound.play();
         return;
     }
-    //isBeepDusk isBeepMidnight isBeepNoon isBeepDawn isBeepBeforeDawn
+    
     if($("input.isBeepDusk").is(':checked') && leftMin==0 && isNight==false){
     	daySound.play();
         $("p.Offset").html("it's Night!");
